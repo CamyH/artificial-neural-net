@@ -1,1 +1,3 @@
-# artificial-neural-net
+# Artificial Neural Net
+
+\[to be updated\]
