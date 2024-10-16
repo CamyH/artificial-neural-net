@@ -12,12 +12,15 @@ Y = data[['concrete_compressive_strength']].copy()
 
 # HyperParam Initialisation
 # PSO will handle the weights and biases
-nodes = 4
-layers = 2
 iterations = 0
 
 # Train, Test Split
 X_train, X_test = train_test_split(X)
 Y_train, Y_test = train_test_split(Y)
 
+# Forward Propagation
+while iterations < 6000:
 
+
+
+    iterations +=1
