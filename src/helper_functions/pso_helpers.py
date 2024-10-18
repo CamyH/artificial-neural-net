@@ -28,6 +28,6 @@ def update_velocity(current_velocity,
 
 # Mean Squared Error has been chosen
 # for the fitness function
-def calculate_fitness(particle):
-    return mse(particle, particle)
+def calculate_fitness(data_points, target_vals, true_targets):
+    return mse(data_points, target_vals, true_targets)
 
