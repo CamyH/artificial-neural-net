@@ -4,19 +4,14 @@ import random
 from src.helper_functions.pso_helpers import *
 
 
-def particle_swarm_optimisation(data_points,
-                                target_values,
+def particle_swarm_optimisation(target_values,
                                 swarm_size,
-                                dimensions):
+                                dimensions,
+                                particles):
     iterations = 0
-
-    particles = np.random.rand(swarm_size, dimensions)
 
     cognitive_weight = 1.2
     social_component = 1.4
-
-    for i in range(swarm_size):
-        particles = np.vstack([particles, np.hstack([np.random.rand(swarm_size, dimensions)])])
 
     personal_bests = np.copy(particles)
 
@@ -27,17 +22,15 @@ def particle_swarm_optimisation(data_points,
 
     while iterations < 10:
         for idx, particle in enumerate(particles):
-            fitness = calculate_fitness(data_points, target_values, true_target_values)
+            print(particle)
+            fitness = calculate_fitness(particle, target_values, target_values)
             print(fitness)
 
-            if best[idx] == -np.inf or fitness > best[idx]:  # Change from 0 to -np.inf for initialization
+            if best[idx] == -np.inf or fitness > best[idx]:
                 best[idx] = fitness
                 personal_bests[idx] = particle.copy()
 
             for dimension in range(dimensions):
-                beta = random.uniform(0.0, 5.0)
-                gamma = random.uniform(0.0, 10)
-                delta = random.uniform(0.0, 15)
                 # Update velocity
                 velocities[idx] = update_velocity(velocities[idx],
                                                   cognitive_weight,
@@ -47,10 +40,8 @@ def particle_swarm_optimisation(data_points,
                                                   personal_bests[idx])
 
                 particles[idx][dimension] += velocities[idx][dimension]
-                #print(velocities[idx])
-                #print('velocities at idx ', velocities[idx])
-                #velocities[idx] = velocity
 
             idx += 1
 
+    return particles
 
