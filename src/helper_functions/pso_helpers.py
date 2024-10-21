@@ -5,26 +5,22 @@ from src.helper_functions.helpers import mse
 
 
 # Calculating the new velocity
+# Used: https://stackoverflow.com/questions/15069998/particle-swarm-optimization-inertia-factor
+# For guidance on the inertia constant
 def update_velocity(current_velocity,
                     cognitive_weight,
                     social_component,
                     particle_current_pos,
                     particle_best_pos,
                     particle_informant_best_pos,
-                    inertia=1,
-                    beta=1,
-                    gamma=1,
-                    delta=1):
+                    inertia=0.8):
 
-    b = random.uniform(0.0, beta)
-    c = random.uniform(0.0, gamma)
-    d = random.uniform(0.0, delta)
+    new_velocity = ((inertia * current_velocity) +
+                    cognitive_weight *
+                    (particle_best_pos - particle_current_pos) +
+                    social_component * (particle_informant_best_pos - particle_best_pos))
 
-    new_velocity = (inertia * current_velocity +
-                       b * (particle_best_pos - particle_current_pos) +
-                       c * (particle_informant_best_pos - particle_current_pos))
-
-    return new_velocity[0]
+    return new_velocity
 
 # Mean Squared Error has been chosen
 # for the fitness function
