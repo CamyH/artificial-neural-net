@@ -1,7 +1,10 @@
-import random
-import numpy as np
+from numpy.ma.core import shape
 
+from src.activation_functions.activation_functions import relu, tan
 from src.helper_functions.helpers import mse
+import numpy as np
+import random
+import pandas as pd
 
 
 # Calculating the new velocity
@@ -15,16 +18,61 @@ def update_velocity(current_velocity,
                     particle_best_pos,
                     particle_informant_best_pos,
                     inertia=0.8):
+    '''print('current v ', current_velocity)
+    print('cognitive weight ', cognitive_weight)
+    print('social component ', social_component)
+    print('particle_current_pos ', particle_current_pos)
+    print('particle_best_pos ', particle_best_pos)
+    print('particle_informant_best_pos ', particle_informant_best_pos)'''
 
-    new_velocity = ((inertia * current_velocity) +
-                    cognitive_weight *
-                    (particle_best_pos - particle_current_pos) +
-                    social_component * (particle_informant_best_pos - particle_best_pos))
+    b = random.uniform(0.0, cognitive_weight)
+    c = random.uniform(0.0, social_component)
+
+    # Update the velocity using the PSO formula
+    new_velocity = (inertia * current_velocity +
+                    b * (particle_best_pos - particle_current_pos) +
+                    c * (particle_informant_best_pos - particle_current_pos))
+
+    #print('NEW VELOCITY ', new_velocity)
 
     return new_velocity
 
 # Mean Squared Error has been chosen
 # for the fitness function
-def calculate_fitness(data_points, target_vals, true_targets):
-    return mse(data_points, target_vals, true_targets)
+def calculate_fitness(x_train, weights, bias, y_train):
+    output = forward_pass(x_train, weights, bias)
+    print('output ' ,output)
 
+    return mse(y_train, output)
+
+# Forward Pass
+# Takes in Input Data, Weights and Biases
+# ws = weighted sum
+def forward_pass(data, weights, bias):
+    '''weights = np.array(weights)
+    print(data, weights)
+    ws = np.dot(data, weights) + bias
+    print(weights)
+    output = relu(ws)
+    print('afte rrelu ', output.shape)
+    output = output
+    #df = pd.DataFrame(output)
+    #df.to_csv('output.csv')
+    #print('output after ReLU:', output)'''
+    weights = np.transpose(weights)
+
+    print(weights)
+    print('d ', data)
+    ws = np.dot(weights, data) + bias
+    print('WSSS ', ws)
+    x = relu(ws)
+    '''for i in range(len(weights)):
+        print(x.shape)
+        ws = np.dot(x, weights) + bias
+        print('Shape before ReL:', ws.shape)
+        x = relu(ws)
+        print('XXXX ', x)
+        print('Shape after ReLU:', x.shape)'''
+
+
+    return x
