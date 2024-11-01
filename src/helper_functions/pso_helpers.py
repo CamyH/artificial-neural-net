@@ -49,30 +49,4 @@ def calculate_fitness(x_train, weights, bias, y_train):
 # Takes in Input Data, Weights and Biases
 # ws = weighted sum
 def forward_pass(data, weights, bias):
-    '''weights = np.array(weights)
-    print(data, weights)
-    ws = np.dot(data, weights) + bias
-    print(weights)
-    output = relu(ws)
-    print('afte rrelu ', output.shape)
-    output = output
-    #df = pd.DataFrame(output)
-    #df.to_csv('output.csv')
-    #print('output after ReLU:', output)'''
-    weights = np.transpose(weights)
-
-    print(weights)
-    print('d ', data)
-    ws = np.dot(weights, data) + bias
-    print('WSSS ', ws)
-    x = relu(ws)
-    '''for i in range(len(weights)):
-        print(x.shape)
-        ws = np.dot(x, weights) + bias
-        print('Shape before ReL:', ws.shape)
-        x = relu(ws)
-        print('XXXX ', x)
-        print('Shape after ReLU:', x.shape)'''
-
-
-    return x
+    return np.dot(data, weights) + bias
