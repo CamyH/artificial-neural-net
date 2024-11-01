@@ -49,4 +49,9 @@ def calculate_fitness(x_train, weights, bias, y_train):
 # Takes in Input Data, Weights and Biases
 # ws = weighted sum
 def forward_pass(data, weights, bias):
-    return np.dot(data, weights) + bias
+    weights = np.array(weights)
+
+    ws = np.dot(data, weights.T)
+    x = ws + bias
+
+    return x
