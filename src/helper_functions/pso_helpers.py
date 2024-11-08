@@ -1,10 +1,5 @@
-from numpy.ma.core import shape
-
-from src.activation_functions.activation_functions import relu, tan
 from src.helper_functions.helpers import mse
-import numpy as np
 import random
-import pandas as pd
 
 
 # Calculating the new velocity
@@ -18,12 +13,6 @@ def update_velocity(current_velocity,
                     particle_best_pos,
                     particle_informant_best_pos,
                     inertia=0.8):
-    '''print('current v ', current_velocity)
-    print('cognitive weight ', cognitive_weight)
-    print('social component ', social_component)
-    print('particle_current_pos ', particle_current_pos)
-    print('particle_best_pos ', particle_best_pos)
-    print('particle_informant_best_pos ', particle_informant_best_pos)'''
 
     b = random.uniform(0.0, cognitive_weight)
     c = random.uniform(0.0, social_component)
@@ -33,15 +22,25 @@ def update_velocity(current_velocity,
                     b * (particle_best_pos - particle_current_pos) +
                     c * (particle_informant_best_pos - particle_current_pos))
 
-    #print('NEW VELOCITY ', new_velocity)
-
     return new_velocity
 
 # Mean Squared Error has been chosen
 # for the fitness function
-def calculate_fitness(x_train, weights, bias, y_train):
-    #output = forward_pass(x_train, weights, bias)
-    #print('output ' ,output)
+def calculate_fitness(y_pred, y_train):
+    return mse(y_train, y_pred)
 
-    #return mse(y_train, output)
-    return 0
+# Randomly assign n number of informants
+# Default is 2, can be overridden
+def init_informants(particles, informants_size=2):
+    # Using random.sample to return a new list of size
+    # informants_size of the particles to be used as
+    # the informants for each particle
+    for particle in particles:
+        # Filter out the current particle so we do not
+        # assign a particle to be its own informant
+        filtered_particles = particles.copy()
+        filtered_particles.remove(particle)
+        chosen_particles = random.sample(filtered_particles, informants_size)
+        particle['informants'] = chosen_particles
+
+    return particles
