@@ -40,18 +40,8 @@ def update_velocity(current_velocity,
 # Mean Squared Error has been chosen
 # for the fitness function
 def calculate_fitness(x_train, weights, bias, y_train):
-    output = forward_pass(x_train, weights, bias)
-    print('output ' ,output)
+    #output = forward_pass(x_train, weights, bias)
+    #print('output ' ,output)
 
-    return mse(y_train, output)
-
-# Forward Pass
-# Takes in Input Data, Weights and Biases
-# ws = weighted sum
-def forward_pass(data, weights, bias):
-    weights = np.array(weights)
-
-    ws = np.dot(data, weights.T)
-    x = ws + bias
-
-    return x
+    #return mse(y_train, output)
+    return 0
