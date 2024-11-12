@@ -1,3 +1,5 @@
+import numpy as np
+
 from src.helper_functions.helpers import mse
 import random
 
@@ -12,7 +14,8 @@ def update_velocity(current_velocity,
                     particle_current_pos,
                     particle_best_pos,
                     particle_informant_best_pos,
-                    inertia=0.8):
+                    best,
+                    inertia=0.7):
 
     b = random.uniform(0.0, cognitive_weight)
     c = random.uniform(0.0, social_component)
@@ -21,6 +24,11 @@ def update_velocity(current_velocity,
     new_velocity = (inertia * current_velocity +
                     b * (particle_best_pos - particle_current_pos) +
                     c * (particle_informant_best_pos - particle_current_pos))
+
+    # We want to use Numpy.Clip to ensure that none of the values
+    # take us out of bounds (are too big)
+    # https://numpy.org/doc/stable/reference/generated/numpy.clip.html
+    new_velocity = np.clip(new_velocity, -0.6, 0.6)
 
     return new_velocity
 
@@ -36,11 +44,16 @@ def init_informants(particles, informants_size=2):
     # informants_size of the particles to be used as
     # the informants for each particle
     for particle in particles:
-        # Filter out the current particle so we do not
-        # assign a particle to be its own informant
-        filtered_particles = particles.copy()
-        filtered_particles.remove(particle)
+        # Create a filtered list of particles excluding the current particle
+        filtered_particles = []
+        for p in particles:
+            if p is not particle:
+                filtered_particles.append(p)
+
+        # Select random informants
         chosen_particles = random.sample(filtered_particles, informants_size)
+
+        # Assign chosen informants to the current particle
         particle['informants'] = chosen_particles
 
     return particles
