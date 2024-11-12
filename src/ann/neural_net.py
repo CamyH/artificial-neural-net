@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 # Custom Helpers
-from src.activation_functions.activation_functions import relu, gradient_descent, update_weight_loss
+from src.activation_functions.activation_functions import relu
 from src.helper_functions.helpers import train_test_split, mse, mae
 from src.helper_functions.pso_helpers import init_informants
 from src.pso.pso import particle_swarm_optimisation
