@@ -1,47 +1,50 @@
+from src.helper_functions.pso_helpers import calculate_fitness, update_velocity
 import numpy as np
-import random
 
-from src.helper_functions.pso_helpers import *
-
-
-def particle_swarm_optimisation(target_values,
-                                swarm_size,
+def particle_swarm_optimisation(y_pred,
+                                y_train,
                                 dimensions,
                                 particles):
     iterations = 0
+    cognitive_weight = 1.1
+    # The absolute best position & fitness seen by any particle
+    best = {
+        'weights': [],
+        'fitness': 0
+    }
 
-    cognitive_weight = 1.2
-    social_component = 1.4
-
-    personal_bests = np.copy(particles)
-
-    velocities = np.random.uniform(-1, 1, (swarm_size, dimensions))
-
-    # Initialised to the first personal best
-    best = np.full(swarm_size, -np.inf)
-
-    while iterations < 10:
-        for idx, particle in enumerate(particles):
-            print(particle)
-            fitness = calculate_fitness(particle, target_values, target_values)
-            print(fitness)
-
-            if best[idx] == -np.inf or fitness > best[idx]:
-                best[idx] = fitness
-                personal_bests[idx] = particle.copy()
-
+    for idx, particle in enumerate(particles):
+        for j, weight in enumerate(particle['weights']):
+            #print('pb ', particle['personal_best_fitness'])
+            fitness = calculate_fitness(y_pred, y_train)
+            print('fitness ', fitness)
+            if best['fitness'] == 0 or fitness < best['fitness']:
+                best['weights'] = particle['weights']
+                best['fitness'] = fitness
+                particle['personal_best'][j] = particle['weights']
+                particle['personal_best_fitness'] = fitness
             for dimension in range(dimensions):
-                # Update velocity
-                velocities[idx] = update_velocity(velocities[idx],
-                                                  cognitive_weight,
-                                                  social_component,
-                                                  idx,
-                                                  best[idx],
-                                                  personal_bests[idx])
+                updated_velocity = update_velocity(
+                                   particle['velocities'][j],
+                                   cognitive_weight,
+                                   weight[j],
+                                   weight,
+                                   particle['personal_best'][j][j],
+                                   particle['personal_best'][j][j],
+                                   best['weights'])
+                print(updated_velocity[0], updated_velocity[1])
 
-                particles[idx][dimension] += velocities[idx][dimension]
+                learning_rate = 0.05
+                updated_velocity = np.clip(updated_velocity, -0.5, 0.5)
+                test = learning_rate * updated_velocity
+                particle['velocities'][j] += test
+                particle['weights'][j] += test
+                #print('BLAGH ', particle['weights'][idx][dimension])
+                #particle['weights'][idx][dimension] = np.clip(particle['weights'][idx][dimension], -1, 1)
+                #print('hi ', particle['weights'])
 
-            idx += 1
 
-    return particles
+    #print(best['weights'], best['fitness'])
+    iterations += 1
 
+    return best
