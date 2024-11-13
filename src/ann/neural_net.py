@@ -13,8 +13,6 @@ from src.pso.pso import particle_swarm_optimisation
 
 def predict(layers, nodes, swarm_size=3):
     # Data Pre-Processing
-    data = pd.read_csv('/Users/camo/Library/Mobile Documents/com~apple~CloudDocs/MSc Courseworks/F21BC BIC - Coursework/Coursework/src/data/concrete_data.csv')
-
     # Inputs
     x = data[
         ['cement', 'blast_furnace_slag', 'fly_ash', 'water', 'superplasticizer', 'coarse_aggregate', 'fine_aggregate ',
@@ -78,15 +76,11 @@ def predict(layers, nodes, swarm_size=3):
         forward_pass_output = x_train
 
         for idx, particle in enumerate(particles):
-            output = forward_pass(forward_pass_output,
-                                               layers,
-                                  particle)
 
             # PSO
             pso_output = particle_swarm_optimisation(forward_pass_output,
                                                     output,
                                                     dimensions,
-                                                    particles)
             #print('weights ', particle['weights'])
             #print('pso_output ', pso_output['weights'])
             particle['weights'] = pso_output['weights']
