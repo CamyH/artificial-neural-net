@@ -2,7 +2,7 @@ import numpy as np
 
 # ReLU
 def relu(x):
-    return np.maximum(x, 0, out=x)
+    return np.maximum(0, x)
 
 # Hyperbolic Tangent
 def tan(x):

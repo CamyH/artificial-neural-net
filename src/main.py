@@ -1,5 +1,4 @@
-from src.activation_functions.activation_functions import relu
-from src.pso.pso import particle_swarm_optimisation
+from src.ann.neural_net import predict
 
 if __name__ == '__main__':
-    particle_swarm_optimisation(5)
+    predict(2, 6)

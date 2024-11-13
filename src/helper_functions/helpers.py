@@ -1,12 +1,19 @@
-# Mean Squared Error (MSE) chosen for regression
-
 import numpy as np
 
-# n = data points
+# Mean Squared Error (MSE) chosen for regression
 # y = observed values
-# yhat = predicted values
-def mse(n, y, yhat):
-    if n == 0:
-        raise Exception('data points cannot be zero for MSE')
+# pred = predicted values/yhat
+def mse(y, pred):
+    return np.mean((pred - y) ** 2)
 
-    return 1 / n * np.sum((yhat - y) ** 2)
+# Mean Absolute Error
+def mae(y_true, y_pred):
+    return np.mean(np.abs(y_true - y_pred))
+
+# Split the data into train and test data
+def train_test_split(arr, percent=0.2):
+    split_idx = int(len(arr) * (1 - percent))
+    arr_train = arr[:split_idx]
+    arr_test = arr[split_idx:]
+
+    return arr_train, arr_test
