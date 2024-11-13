@@ -3,6 +3,7 @@ import random
 import pandas as pd
 import numpy as np
 import time
+import os
 
 # Custom Helpers
 from src.activation_functions.activation_functions import relu
@@ -10,9 +11,10 @@ from src.helper_functions.helpers import train_test_split, mse, mae
 from src.helper_functions.pso_helpers import init_informants
 from src.pso.pso import particle_swarm_optimisation
 
-
 def predict(layers, nodes, swarm_size=3):
     # Data Pre-Processing
+    data = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'data', 'concrete_data.csv'))
+
     # Inputs
     x = data[
         ['cement', 'blast_furnace_slag', 'fly_ash', 'water', 'superplasticizer', 'coarse_aggregate', 'fine_aggregate ',
@@ -81,6 +83,7 @@ def predict(layers, nodes, swarm_size=3):
             pso_output = particle_swarm_optimisation(forward_pass_output,
                                                     output,
                                                     dimensions,
+                                                    particles,
                                                     layers)
             #print('weights ', particle['weights'])
             #print('pso_output ', pso_output['weights'])
