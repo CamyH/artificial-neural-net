@@ -81,6 +81,7 @@ def predict(layers, nodes, swarm_size=3):
             pso_output = particle_swarm_optimisation(forward_pass_output,
                                                     output,
                                                     dimensions,
+                                                    layers)
             #print('weights ', particle['weights'])
             #print('pso_output ', pso_output['weights'])
             particle['weights'] = pso_output['weights']

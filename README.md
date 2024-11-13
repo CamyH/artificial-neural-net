@@ -5,8 +5,11 @@ On PyCharm:
 
 On VSCode:
 `python -m src.main`
+
 <hr/>
+
 # Artificial Neural Net Trained Using Particle Swarm Optimization
+
 ![Static Badge](https://img.shields.io/badge/status-Work%20In%20Progress-brightgreen?style=plastic)
 
 "_A Logical Calculus of Ideas Immanent in Nervous Activity_" by Warren McCulloch and Walter Pitts, published in 1943, was the foundational paper introduced the concept of artificial neurons, which laid the groundwork for neural networks.
