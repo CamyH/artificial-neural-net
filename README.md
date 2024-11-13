@@ -14,5 +14,5 @@ Tell the boids not to run into flockmates
 The flock will move together to a single shared objective space with a common velocity.
 
 ### Alignment
-The the direction of the boid driver of the flock which changes based on who is on lead in the prevailing direction.
+The the directiowqn of the boid driver of the flock which changes based on who is on lead in the prevailing direction.
 This inturn suggests the direction of each boid in the flock causing natural swarm patterns.
