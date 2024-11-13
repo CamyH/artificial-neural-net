@@ -1,3 +1,8 @@
 
-ANN-PSO implemented
+- ANN-PSO implemented
 https://github.com/asbudhkar/ANN-PSO/blob/master/clinn.py
+
+- Eberhart Keneddy PSO
+- Eberhart Shie Modern PSO
+
+- Mcollochs-Pitt ANN
