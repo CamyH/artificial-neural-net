@@ -1,5 +1,9 @@
 import numpy as np
 
+# Custom Imports
+from src.activation_functions.activation_functions import relu
+
+
 # Mean Squared Error (MSE) chosen for regression
 # y = observed values
 # pred = predicted values/yhat
@@ -26,4 +30,15 @@ def init_weights_biases(layers, weights, biases):
         biases.append(np.zeros(weights[i + 1]))
 
     return weights, biases
+
+# Forward Pass
+# Takes in Input Data, Weights and Biases
+def forward_pass(data, layers, particle):
+    output = data
+    for i in range(layers):
+        weights = particle['weights'][i]
+        bias = particle['biases'][i]
+        ws = np.dot(output, weights) + bias
+        output = relu(ws)
+    return np.dot(output, particle['weights_output']) + particle['biases'][-1][layers]
 

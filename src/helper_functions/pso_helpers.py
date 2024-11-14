@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.activation_functions.activation_functions import relu
+from src.helper_functions.helpers import forward_pass
 from src.helper_functions.helpers import mse
 import random
 
@@ -29,26 +29,15 @@ def update_velocity(current_velocity,
     # We want to use Numpy.Clip to ensure that none of the values
     # take us out of bounds (are too big)
     # https://numpy.org/doc/stable/reference/generated/numpy.clip.html
-    new_velocity = np.clip(new_velocity, -0.7, 0.7)
+    new_velocity = np.clip(new_velocity, -0.08, 0.08)
 
     return new_velocity
 
 # Mean Squared Error has been chosen
 # for the fitness function
 def calculate_fitness(y_pred, y_train, layers, particle):
-    y_pred = forward_pass_pso(y_pred, layers, particle)
+    y_pred = forward_pass(y_pred, layers, particle)
     return mse(y_train, y_pred)
-
-# Forward Pass
-# Takes in Input Data, Weights and Biases
-def forward_pass_pso(data, layers, particle):
-    output = data
-    for i in range(layers):
-        weights = particle['weights'][i]
-        bias = particle['biases'][i]
-        ws = np.dot(output, weights) + bias
-        output = relu(ws)
-    return np.dot(output, particle['weights_output']) + particle['biases'][-1][layers]
 
 # Randomly assign n number of informants
 # Default is 2, can be overridden
