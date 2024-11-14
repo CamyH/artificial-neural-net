@@ -58,8 +58,7 @@ def particle_swarm_optimisation(swarm_size,
     for i in range(iterations):
         for idx, particle in enumerate(particles):
             fitness = calculate_fitness(y_pred, y_train, layers, particle)
-            print('f'
-                  'Fitness ', fitness)
+            print('Fitness ', fitness)
             if best['fitness'] == 0 or fitness < best['fitness']:
                 best['positions'] = particle['positions']
                 best['fitness'] = fitness
