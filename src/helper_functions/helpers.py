@@ -24,10 +24,15 @@ def train_test_split(arr, percent=0.2):
 
 # Initialise weights and biases on a per layer
 # bases for the neural network
-def init_weights_biases(layers, weights, biases):
-    for i in range(0, layers):
-        weights.append(np.random.rand(weights[i], weights[i + 1]))
-        biases.append(np.zeros(weights[i + 1]))
+def init_weights_biases(layers, nodes, weights, biases):
+    # Init hidden layers
+    for i in range(0, layers - 1):
+        weights.append(np.random.rand(nodes, nodes))
+        biases.append(np.zeros(nodes))
+
+    # Init the output layer last
+    weights.append(np.random.rand(nodes, 1))
+    biases.append(np.zeros(1))
 
     return weights, biases
 
