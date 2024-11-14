@@ -33,12 +33,14 @@ def init_weights_biases(layers, weights, biases):
 
 # Forward Pass
 # Takes in Input Data, Weights and Biases
-def forward_pass(data, layers, particle):
+def forward_pass(data, layers, weights, biases):
     output = data
-    for i in range(layers):
-        weights = particle['weights'][i]
-        bias = particle['biases'][i]
+    # Don't want to iterate over the output layer so -1
+    for i in range(layers - 1):
+        weights = weights[i]
+        bias = biases[i]
         ws = np.dot(output, weights) + bias
         output = relu(ws)
-    return np.dot(output, particle['weights_output']) + particle['biases'][-1][layers]
+
+    return np.dot(output, weights[-1]) + biases[-1]
 
