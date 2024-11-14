@@ -1,50 +1,87 @@
 
-from src.helper_functions.pso_helpers import update_velocity, calculate_fitness
+from src.helper_functions.pso_helpers import update_velocity, calculate_fitness, init_informants
 import numpy as np
 
-def particle_swarm_optimisation(y_pred,
+def particle_swarm_optimisation(swarm_size,
+                                y_pred,
                                 y_train,
                                 dimensions,
                                 particles,
-                                layers):
-    iterations = 0
-    cognitive_weight = 1.1
+                                layers,
+                                nodes):
+    iterations = 10
+    cognitive_weight = 0.4
+    social_weight = 0.6
+
+    max_weight = 0.2
+    min_weight = -0.2
+
+    for j in range(swarm_size):
+        particle = {
+            'positions': [],
+            'biases': [],
+            'velocities': [],
+            'bias_velocities': np.random.uniform(-0.1, 0.1, dimensions),
+            'fitness': 9999,
+            'personal_best': [],
+            'personal_best_fitness': 9999,
+            'informants': []
+        }
+
+        prev_layer_nodes = dimensions
+        for i in range(layers):
+            positions = np.random.uniform(min_weight, max_weight, (prev_layer_nodes, nodes))
+            biases = np.full(nodes, 0.1)
+            velocities = np.random.uniform(-0.2, 0.2, (prev_layer_nodes, nodes))
+            personal_best = np.zeros((prev_layer_nodes, nodes))
+
+            #print(f'Layer {i}, positions shape {positions.shape} and velocities shape {velocities.shape}')
+
+            particle['positions'].append(positions)
+            particle['biases'].append(biases)
+            particle['velocities'].append(velocities)
+            particle['personal_best'].append(personal_best)
+
+            prev_layer_nodes = nodes
+
+        particles.append(particle)
+
+    # Initialise Informants
+    particles = init_informants(particles)
+
     # The absolute best position & fitness seen by any particle
     best = {
-        'weights': [],
+        'positions': [],
         'fitness': 0
     }
-    while iterations < 10:
+
+    for i in range(iterations):
         for idx, particle in enumerate(particles):
-            for j, weight in enumerate(particle['weights']):
-                #print('pb ', particle['personal_best_fitness'])
-                fitness = calculate_fitness(y_pred, y_train, layers, particle)
-                #print('fitness ', fitness)
-                if best['fitness'] == 0 or fitness < best['fitness']:
-                    best['weights'] = particle['weights']
-                    best['fitness'] = fitness
-                    particle['personal_best'][j] = particle['weights']
-                    particle['personal_best_fitness'] = fitness
-                for dimension in range(dimensions):
-                    updated_velocity = update_velocity(
-                                       particle['velocities'][j],
-                                       cognitive_weight,
-                                       weight[j],
-                                       weight,
-                                       particle['personal_best'][j][j],
-                                       particle['personal_best'][j][j],
-                                       best['weights'])
-                    #print(updated_velocity[0], updated_velocity[1])
+            fitness = calculate_fitness(y_pred, y_train, layers, particle)
+            print('f'
+                  'Fitness ', fitness)
+            if best['fitness'] == 0 or fitness < best['fitness']:
+                best['positions'] = particle['positions']
+                best['fitness'] = fitness
+                particle['personal_best'] = particle['positions']
+                particle['personal_best_fitness'] = fitness
 
-                    particle['velocities'][j] += updated_velocity
-                    particle['weights'][j] += updated_velocity
-                    #print('BLAGH ', particle['weights'][idx][dimension])
-                    #particle['weights'][idx][dimension] = np.clip(particle['weights'][idx][dimension], -1, 1)
-                    #print('hi ', particle['weights'])
+            for dimension in range(dimensions):
+                # Passing in the current velocity, cognitive/social weight, current position
+                # the particles personal best position, informants best and local best
+                updated_velocity = update_velocity(
+                                    particle['velocities'],
+                                    cognitive_weight,
+                                    social_weight,
+                                    particle['positions'],
+                                    particle['personal_best'],
+                                    particle['personal_best'],
+                                    best['positions'])
 
+                particle['velocities'] = updated_velocity
+                particle['positions'] += updated_velocity
 
-        #print(best['weights'], best['fitness'])
-        #print(iterations)
-        iterations += 1
+            iterations += 1
+            print('Iteration ', iterations)
 
-    return best
+        return best
