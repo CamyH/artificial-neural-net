@@ -17,3 +17,13 @@ def train_test_split(arr, percent=0.2):
     arr_test = arr[split_idx:]
 
     return arr_train, arr_test
+
+# Initialise weights and biases on a per layer
+# bases for the neural network
+def init_weights_biases(layers, weights, biases):
+    for i in range(0, layers):
+        weights.append(np.random.rand(weights[i], weights[i + 1]))
+        biases.append(np.zeros(weights[i + 1]))
+
+    return weights, biases
+
