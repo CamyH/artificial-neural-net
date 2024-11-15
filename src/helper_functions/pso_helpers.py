@@ -29,7 +29,7 @@ def update_velocity(current_velocity,
     # We want to use Numpy.Clip to ensure that none of the values
     # take us out of bounds (are too big)
     # https://numpy.org/doc/stable/reference/generated/numpy.clip.html
-    new_velocity = np.clip(new_velocity, -0.08, 0.08)
+    new_velocity = np.clip(new_velocity, -0.5, 0.5)
 
     return new_velocity
 
