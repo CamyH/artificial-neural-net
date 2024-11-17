@@ -11,11 +11,10 @@ from src.helper_functions.helpers import train_test_split, mse, mae
 from src.helper_functions.pso_helpers import init_informants
 from src.pso.pso import particle_swarm_optimisation
 
-
 def predict(layers, nodes, swarm_size=3):
     # Data Pre-Processing
-    #data = pd.read_csv('../src/data/concrete_data.csv')
     data = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'data', 'concrete_data.csv'))
+
     # Inputs
     x = data[
         ['cement', 'blast_furnace_slag', 'fly_ash', 'water', 'superplasticizer', 'coarse_aggregate', 'fine_aggregate ',
@@ -79,13 +78,12 @@ def predict(layers, nodes, swarm_size=3):
         forward_pass_output = x_train
 
         for idx, particle in enumerate(particles):
-            output = forward_pass(forward_pass_output, layers, particle)
 
             # PSO
             pso_output = particle_swarm_optimisation(forward_pass_output,
                                                     output,
                                                     dimensions,
-                                                    particles, 
+                                                    particles,
                                                     layers)
             #print('weights ', particle['weights'])
             #print('pso_output ', pso_output['weights'])
