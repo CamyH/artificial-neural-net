@@ -1,50 +1,60 @@
-
-from src.helper_functions.pso_helpers import update_velocity, calculate_fitness
 import numpy as np
+from src.ann.neuralnetwork import NeuralNetwork
 
-def particle_swarm_optimisation(y_pred,
-                                y_train,
-                                dimensions,
-                                particles,
-                                layers):
-    iterations = 0
-    cognitive_weight = 1.1
-    # The absolute best position & fitness seen by any particle
-    best = {
-        'weights': [],
-        'fitness': 0
-    }
-    while iterations < 10:
-        for idx, particle in enumerate(particles):
-            for j, weight in enumerate(particle['weights']):
-                #print('pb ', particle['personal_best_fitness'])
-                fitness = calculate_fitness(y_pred, y_train, layers, particle)
-                #print('fitness ', fitness)
-                if best['fitness'] == 0 or fitness < best['fitness']:
-                    best['weights'] = particle['weights']
-                    best['fitness'] = fitness
-                    particle['personal_best'][j] = particle['weights']
-                    particle['personal_best_fitness'] = fitness
-                for dimension in range(dimensions):
-                    updated_velocity = update_velocity(
-                                       particle['velocities'][j],
-                                       cognitive_weight,
-                                       weight[j],
-                                       weight,
-                                       particle['personal_best'][j][j],
-                                       particle['personal_best'][j][j],
-                                       best['weights'])
-                    #print(updated_velocity[0], updated_velocity[1])
+def particle_swarm_optimisation(num_parameters, ann_architecture, ann_activations, data, labels, swarm_size=50, c1=1.5, c2=1.5):
 
-                    particle['velocities'][j] += updated_velocity
-                    particle['weights'][j] += updated_velocity
-                    #print('BLAGH ', particle['weights'][idx][dimension])
-                    #particle['weights'][idx][dimension] = np.clip(particle['weights'][idx][dimension], -1, 1)
-                    #print('hi ', particle['weights'])
+    swarm = []
+    for i in range(swarm_size):
+        position = np.random.randn(num_parameters)
+        velocity = np.random.randn(num_parameters) * 0.1
+        best_position = position.copy()
+        best_fitness = 9999
+        swarm.append({i: {'position': position, 'velocity': velocity, 'best_position': best_position, 'best_fitness': best_fitness}})
+
+    global_best_position = None
+    global_best_fitness = 9999
+    max_iter = 10
+    for iteration in range(max_iter):
+        for idx, particle in enumerate(swarm):
+            fitness = calculate_fitness(data, labels, particle[idx]['position'], ann_architecture, ann_activations)
+
+            if fitness < particle[idx]['best_fitness']:
+                particle[idx]['best_position'] = particle[idx]['position'].copy()
+                particle[idx]['best_fitness'] = fitness
+
+            if fitness < global_best_fitness:
+                global_best_position = particle[idx]['position'].copy()
+                global_best_fitness = fitness
+
+        for idx, particle in enumerate(swarm):
+            updated_position = update_particle(particle[idx]['velocity'], particle[idx]['position'], particle[idx]['best_position'], c1, c2, global_best_position)
+            particle[idx]['position'] = updated_position
+
+        print(f"Iteration {iteration + 1}/{max_iter}, Fitness: {global_best_fitness}")
+
+    return global_best_position
 
 
-        #print(best['weights'], best['fitness'])
-        #print(iterations)
-        iterations += 1
 
-    return best
+def calculate_fitness(data, labels, particle_position, ann_architecture, ann_activations):
+    # Update the ANN with the new parameters from PSO
+    ann = NeuralNetwork(ann_architecture, ann_activations)
+    ann.update_parameters(particle_position)
+
+    # Forward pass to generate predictions
+    predictions = []
+    for item in data:
+        predictions.append(ann.forward_pass(item.reshape(-1, 1)))
+    predictions = np.array(predictions).flatten()
+    return np.mean(np.abs(predictions - labels.flatten()))
+
+def update_particle(current_velocity, particle_current_position, particle_best_position, global_best_position, c1, c2):
+    r1, r2 = np.random.rand(), np.random.rand()
+    inertia = 0.5
+    cognitive_component = c1 * r1 * (particle_best_position - particle_current_position)
+    social_component = c2 * r2 * (global_best_position - particle_current_position)
+
+    new_velocity = inertia * current_velocity + cognitive_component + social_component
+    particle_new_position = particle_current_position + new_velocity
+
+    return particle_new_position
