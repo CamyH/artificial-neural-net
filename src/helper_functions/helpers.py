@@ -17,3 +17,14 @@ def train_test_split(arr, percent=0.2):
     arr_test = arr[split_idx:]
 
     return arr_train, arr_test
+
+# Calculate and return the total number of parameters
+# in the neural network
+def params_count(weights, biases):
+    # Iterate through each of the weights and biases and calculate the total
+    count = 0
+    for weight_matrix in weights:
+        count += np.prod(weight_matrix.shape)
+    for bias_vector in biases:
+        count += np.prod(bias_vector.shape)
+    return count
