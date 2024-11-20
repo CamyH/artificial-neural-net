@@ -24,24 +24,19 @@ x_test = feature_scaler.transform(x_test)
 
 # Setup ANN and PSO params
 layer_dimensions = [8, 6, 6, 1]
-ann_activations = ['relu', 'relu', 'relu', 'linear']
 # Initialising weights and biases for the neural network
 weights, biases = setup(layer_dimensions)
 num_parameters = params_count(weights, biases)
 
 # Run PSO optimisation
-best_params = particle_swarm_optimisation(layer_dimensions, num_parameters,
+optimised_params = particle_swarm_optimisation(layer_dimensions, num_parameters,
            x_train, y_train, 50, 1.5, 1.5)
-
-# Initialize ANN with the optimised parameters
-#ann = NeuralNetwork(ann_architecture, ann_activations)
-#ann.update_parameters(best_params)
 
 # Generate predictions on the test set
 predictions = []
 for x in x_test:
     #pred = forward_pass(x.reshape(-1, 1))
-    pred = predict(x.reshape(-1, 1), weights, biases, best_params)
+    pred = predict(x.reshape(-1, 1), weights, biases, optimised_params)
     predictions.append(pred)
 
 predictions = np.array(predictions)
