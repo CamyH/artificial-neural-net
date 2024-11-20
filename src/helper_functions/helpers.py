@@ -1,3 +1,4 @@
+# Packages
 import numpy as np
 
 # Mean Squared Error (MSE) chosen for regression

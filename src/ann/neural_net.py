@@ -1,5 +1,7 @@
+# Packages
 import numpy as np
 
+# Custom Hooks
 from activation_functions.activation_functions import relu
 
 def setup(layer_dimensions):
