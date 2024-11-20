@@ -43,17 +43,17 @@ def particle_swarm_optimisation(layer_dimensions,
                 global_best_fitness = fitness
 
         for idx, particle in enumerate(swarm):
-            for dim in range(len(particle[idx]['position'])):
+            for dimension in range(len(particle[idx]['position'])):
                 # Updating the velocity/position of each dimension of the particle
                 updated_position = update_particle(
-                    particle[idx]['velocity'][dim],
-                    particle[idx]['position'][dim],
-                    particle[idx]['best_position'][dim],
+                    particle[idx]['velocity'][dimension],
+                    particle[idx]['position'][dimension],
+                    particle[idx]['best_position'][dimension],
                     c1,
                     c2,
-                    global_best_position[dim])
+                    global_best_position[dimension])
                 # Update the position of the specific dimension
-                particle[idx]['position'][dim] = updated_position
+                particle[idx]['position'][dimension] = updated_position
 
         print(f"Iteration {iteration + 1}/{max_iter}, Fitness: {global_best_fitness}")
 
