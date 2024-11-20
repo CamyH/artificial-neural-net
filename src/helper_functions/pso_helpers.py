@@ -30,6 +30,9 @@ def update_particle(current_velocity,
     # Add step to velocity to help exploration
     new_velocity = new_velocity + jump_size * (best_informant - particle_current_position)
 
+    # Boundary handling
+    new_velocity = np.clip(new_velocity, -0.6, 0.6)
+
     updated_position = particle_current_position + new_velocity
 
     return updated_position
