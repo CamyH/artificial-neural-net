@@ -16,12 +16,20 @@ def update_particle(current_velocity,
                     global_best_position,
                     c1,
                     c2,
+                    c3,
+                    best_informant,
+                    jump_size=0.5,
                     inertia=0.5):
     r1, r2 = np.random.rand(), np.random.rand()
     cognitive_component = c1 * r1 * (particle_best_position - particle_current_position)
     social_component = c2 * r2 * (global_best_position - particle_current_position)
+    informant_component = c3 * (best_informant - particle_current_position)
 
-    new_velocity = inertia * current_velocity + cognitive_component + social_component
+    new_velocity = inertia * current_velocity + cognitive_component + social_component + informant_component
+
+    # Add step to velocity to help exploration
+    new_velocity = new_velocity + jump_size * (best_informant - particle_current_position)
+
     updated_position = particle_current_position + new_velocity
 
     return updated_position
@@ -42,23 +50,13 @@ def calculate_fitness(layer_dimensions,
     predictions = np.array(predictions).flatten()
     return mse(labels, predictions)
 
-# Randomly assign n number of informants
+# Randomly assign n (informants_size) number of informants per particle
 # Default is 2, can be overridden
-def init_informants(particles, informants_size=2):
-    # Using random.sample to return a new list of size
-    # informants_size of the particles to be used as
-    # the informants for each particle
-    for particle in particles:
-        # Create a filtered list of particles excluding the current particle
-        filtered_particles = []
-        for p in particles:
-            if p is not particle:
-                filtered_particles.append(p)
+# Returns the indices of the informant particle for each particle
+def init_informants(num_particles, informants_size=2):
+    informants = []
+    for _ in range(num_particles):
+        informant = np.random.choice(num_particles, informants_size, replace=False)
+        informants.append(informant)
 
-        # Select random informants
-        chosen_particles = random.sample(filtered_particles, informants_size)
-
-        # Assign chosen informants to the current particle
-        particle['informants'] = chosen_particles
-
-    return particles
+    return informants
