@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 
-from ann.neuralnetwork import setup, predict, forward_pass
+from ann.neural_net import setup, predict, forward_pass
 from pso.pso import particle_swarm_optimisation
 from helper_functions.helpers import mse, mae, params_count
 

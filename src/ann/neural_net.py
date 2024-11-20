@@ -1,113 +1,50 @@
-# Packages
-import random
-import pandas as pd
 import numpy as np
-import time
-import os
 
-# Custom Helpers
-from src.activation_functions.activation_functions import relu
-from src.helper_functions.helpers import train_test_split, mse, mae
-from src.helper_functions.pso_helpers import init_informants
-from src.pso.pso import particle_swarm_optimisation
+from activation_functions.activation_functions import relu
 
-def predict(layers, nodes, swarm_size=3):
-    # Data Pre-Processing
-    data = pd.read_csv(os.path.join(os.path.dirname(__file__), '..', 'data', 'concrete_data.csv'))
+def setup(layer_dimensions):
+    # Initialise the weights and biases using random initialsation
+    weights = []
+    biases = []
+    for i in range(1, len(layer_dimensions)):
+        weight = np.random.randn(layer_dimensions[i], layer_dimensions[i - 1])
+        weights.append(weight)
+        bias = np.full((layer_dimensions[i], 1), 0.1)
+        biases.append(bias)
 
-    # Inputs
-    x = data[
-        ['cement', 'blast_furnace_slag', 'fly_ash', 'water', 'superplasticizer', 'coarse_aggregate', 'fine_aggregate ',
-         'age']].values.copy()
-    dimensions = x.shape[1]
+    return weights, biases
 
-    # Output
-    y = data[['concrete_compressive_strength']].values.copy()
 
-    # Param Initialisation
-    particles = []
-    max_weight = 0.3
-    min_weight = -0.3
-    for j in range(swarm_size):
-        particle = {
-            'weights': [],
-            'weights_output': np.random.uniform(min_weight, max_weight, (nodes, 1)),
-            'biases': [],
-            'velocities': [],
-            'bias_velocities': np.random.uniform(-0.1, 0.1, dimensions),
-            'fitness': 9999,
-            'personal_best': [],
-            'personal_best_fitness': 9999,
-            'informants': []
-        }
-
-        prev_layer_nodes = dimensions
-        for i in range(layers):
-            weights = np.random.uniform(min_weight, max_weight, (prev_layer_nodes, nodes))
-            biases = np.full(nodes, 0.1)
-            velocities = np.random.uniform(-0.3, 0.3, (prev_layer_nodes, nodes))
-            personal_best = np.zeros((prev_layer_nodes, nodes))
-
-            #print(f'Layer {i}, weights shape {weights.shape} and velocities shape {velocities.shape}')
-
-            particle['weights'].append(weights)
-            particle['biases'].append(biases)
-            particle['velocities'].append(velocities)
-            particle['personal_best'].append(personal_best)
-
-            prev_layer_nodes = nodes
-
-        particles.append(particle)
-
-    # Initialise Informants
-    particles = init_informants(particles)
-
-    # Train, Test Split
-    x_train, x_test = train_test_split(x)
-    y_train, y_test = train_test_split(y)
-
-    # Misc Params
-    num_iterations = 10000
-    start_time = time.time()
-    np.random.seed(1)
-
-    # Predicted Output
-    output = []
-
-    for i in range(0, num_iterations):
-        forward_pass_output = x_train
-
-        for idx, particle in enumerate(particles):
-
-            # PSO
-            pso_output = particle_swarm_optimisation(forward_pass_output,
-                                                    output,
-                                                    dimensions,
-                                                    particles,
-                                                    layers)
-            #print('weights ', particle['weights'])
-            #print('pso_output ', pso_output['weights'])
-            particle['weights'] = pso_output['weights']
-            # For testing
-            #df = pd.DataFrame(output)
-            #df.to_csv('forward_pass_out.csv')
-
-    #print(output.shape)
-    result = mse(y_train, output)
-    result_mae = mae(y_train, output)
-    print('Training time: ', str(time.time() - start_time))
-    print('Mean Squared Error (MSE):', result)
-    print('Mean Absolute Error (MAE):', result_mae)
-
+def predict(data, weights, biases, optimised_params):
+    # Update the weights/biases with the optimised weights from PSO
+    weights, biases = update_weights_biases(weights, biases, optimised_params)
+    # Run forward pass and return predictions
+    return forward_pass(data, weights, biases)
 
 # Forward Pass
-# Takes in Input Data, Weights and Biases
-def forward_pass(data, layers, particle):
+# Takes in the set of inputs, returns the predicted outputs
+def forward_pass(data, weights, biases):
     output = data
-    for i in range(layers):
-        weights = particle['weights'][i]
-        bias = particle['biases'][i]
-        ws = np.dot(output, weights) + bias
+    for i in range(len(weights) - 1):
+        ws = np.dot(weights[i], output) + biases[i]
         output = relu(ws)
 
-    return np.dot(output, particle['weights_output']) + particle['biases'][-1][layers]
+    # Don't want to apply any activation function on the output
+    return np.dot(weights[-1], output) + biases[-1]
+
+# Update the params of the network with new ones
+def update_weights_biases(weights, biases, optimised_params):
+    idx = 0
+    for i in range(len(weights)):
+        weight_shape = weights[i].shape
+        bias_shape = biases[i].shape
+        # We need to get the correct portion of the optimised weights to apply to the current weight
+        weight_slice = optimised_params[idx:idx + np.prod(weight_shape)]
+        weights[i] = weight_slice.reshape(weight_shape)
+        idx += np.prod(weight_shape)
+        # We now need to d othe same for the biases
+        bias_slice = optimised_params[idx:idx + np.prod(bias_shape)]
+        biases[i] = bias_slice.reshape(bias_shape)
+        idx += np.prod(bias_shape)
+
+    return weights, biases

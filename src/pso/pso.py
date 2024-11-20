@@ -1,5 +1,5 @@
 import numpy as np
-from ann.neuralnetwork import setup, predict
+from ann.neural_net import setup, predict
 from helper_functions.helpers import mse
 
 
