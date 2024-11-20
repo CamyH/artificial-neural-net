@@ -1,49 +1,50 @@
 import numpy as np
 
-class NeuralNetwork:
-    def __init__(self, layer_sizes, activation_functions):
-        """
-        Initialize the ANN with specified layers and activation functions.
-        Parameters:
-        - layer_sizes: List containing the number of nodes in each layer.
-        - activation_functions: List of activation functions for each layer.
-        """
-        self.layer_sizes = layer_sizes
-        self.activation_functions = activation_functions
-        self.weights = [np.random.randn(layer_sizes[i], layer_sizes[i-1]) * np.sqrt(2 / layer_sizes[i-1]) 
-                        for i in range(1, len(layer_sizes))]
-        self.biases = [np.random.randn(layer_sizes[i], 1) * 0.1 for i in range(1, len(layer_sizes))]
+from activation_functions.activation_functions import relu
 
-    def activate(self, x, func):
-        if func == 'linear':
-            return x
-        elif func == 'logistic':
-            return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
-        elif func == 'relu':
-            return np.maximum(0, x)
-        elif func == 'tanh':
-            return np.tanh(x)
-        else:
-            raise ValueError("Unknown activation function.")
+def setup(layer_dimensions):
+    # Initialise the weights and biases using random initialsation
+    weights = []
+    biases = []
+    for i in range(1, len(layer_dimensions)):
+        weight = np.random.randn(layer_dimensions[i], layer_dimensions[i - 1])
+        weights.append(weight)
+        bias = np.full((layer_dimensions[i], 1), 0.1)
+        biases.append(bias)
 
-    # Forward Pass
-    # Takes in the set of inputs, returns the predicted outputs
-    def forward_pass(self, data):
-        output = data
-        for i in range(len(self.weights) - 1):
-            ws = np.dot(self.weights[i], output) + self.biases[i]
-            output = self.activate(ws, self.activation_functions[i])
+    return weights, biases
 
-        # Don't want to apply any activation function on the output
-        return np.dot(self.weights[-1], output) + self.biases[-1]
 
-    # Update the params of the network with new ones
-    def update_parameters(self, params):
-        idx = 0
-        for i in range(len(self.weights)):
-            weight_shape = self.weights[i].shape
-            bias_shape = self.biases[i].shape
-            self.weights[i] = params[idx:idx + np.prod(weight_shape)].reshape(weight_shape)
-            idx += np.prod(weight_shape)
-            self.biases[i] = params[idx:idx + np.prod(bias_shape)].reshape(bias_shape)
-            idx += np.prod(bias_shape)
+def predict(data, weights, biases, optimised_params):
+    # Update the weights/biases with the optimised weights from PSO
+    weights, biases = update_weights_biases(weights, biases, optimised_params)
+    # Run forward pass and return predictions
+    return forward_pass(data, weights, biases)
+
+# Forward Pass
+# Takes in the set of inputs, returns the predicted outputs
+def forward_pass(data, weights, biases):
+    output = data
+    for i in range(len(weights) - 1):
+        ws = np.dot(weights[i], output) + biases[i]
+        output = relu(ws)
+
+    # Don't want to apply any activation function on the output
+    return np.dot(weights[-1], output) + biases[-1]
+
+# Update the params of the network with new ones
+def update_weights_biases(weights, biases, optimised_params):
+    idx = 0
+    for i in range(len(weights)):
+        weight_shape = weights[i].shape
+        bias_shape = biases[i].shape
+        # We need to get the correct portion of the optimised weights to apply to the current weight
+        weight_slice = optimised_params[idx:idx + np.prod(weight_shape)]
+        weights[i] = weight_slice.reshape(weight_shape)
+        idx += np.prod(weight_shape)
+        # We now need to d othe same for the biases
+        bias_slice = optimised_params[idx:idx + np.prod(bias_shape)]
+        biases[i] = bias_slice.reshape(bias_shape)
+        idx += np.prod(bias_shape)
+
+    return weights, biases
