@@ -35,13 +35,12 @@ optimised_params = particle_swarm_optimisation(layer_dimensions, num_parameters,
 # Generate predictions on the test set
 predictions = []
 for x in x_test:
-    #pred = forward_pass(x.reshape(-1, 1))
     pred = predict(x.reshape(-1, 1), weights, biases, optimised_params)
     predictions.append(pred)
 
 predictions = np.array(predictions)
 
-# Calculate metrics for training data
+# Calculate metrics for test data
 result_mae = mae(y_test, predictions)
 result_mse = mse(y_test, predictions)
 print(f"Test MAE: {result_mae}")

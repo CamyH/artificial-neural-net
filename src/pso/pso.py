@@ -10,8 +10,8 @@ def particle_swarm_optimisation(layer_dimensions,
                                 data, labels,
                                 swarm_size=50,
                                 c1=1.0,
-                                c2=1.0,
-                                c3=0.3):
+                                c2=1.2,
+                                c3=0.4):
     swarm = []
     informants = []
     for i in range(swarm_size):

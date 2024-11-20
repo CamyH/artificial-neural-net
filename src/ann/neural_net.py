@@ -2,7 +2,7 @@
 import numpy as np
 
 # Custom Hooks
-from activation_functions.activation_functions import relu
+from activation_functions.activation_functions import relu, tan, log
 
 def setup(layer_dimensions):
     # Initialise the weights and biases using random initialsation
