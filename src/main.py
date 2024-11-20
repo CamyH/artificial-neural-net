@@ -17,13 +17,30 @@ y = df.iloc[:, -1].values.reshape(-1, 1)
 # Split the data into training and testing sets
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
+input_dimensions = x_train.shape[1]
+output_dimensions = y_train.shape[1]
+
 # Scale the features
 feature_scaler = MinMaxScaler()
 x_train = feature_scaler.fit_transform(x_train)
 x_test = feature_scaler.transform(x_test)
 
 # Setup ANN and PSO params
-layer_dimensions = [8, 6, 6, 1]
+#layer_dimensions = [8, 6, 6, 1]
+layer_dimensions = [input_dimensions]
+
+# Ask the user to enter the number of layers they would like
+# the neural network to have
+hidden_layers = int(input("Please enter the number of hidden layers for the neural net: "))
+
+for i in range(hidden_layers):
+    layer_dimensions.append(int(input(f"Please enter the number of neurons for layer {i + 1}: ")))
+
+# Add the output layer dimensions last
+layer_dimensions.append(output_dimensions)
+
+print(f'Selected Layer Dimensions {layer_dimensions}')
+
 # Initialising weights and biases for the neural network
 weights, biases = setup(layer_dimensions)
 num_parameters = params_count(weights, biases)
