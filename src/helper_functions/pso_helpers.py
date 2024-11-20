@@ -1,54 +1,46 @@
+# Packages
 import numpy as np
-
-from src.activation_functions.activation_functions import relu
-from src.helper_functions.helpers import mse
 import random
 
+# Custom Hooks
+from ann.neural_net import setup, predict
+from helper_functions.helpers import mse
 
-# Calculating the new velocity
+# Function to calculate the new velocity of a particle
+# Also updates the particles position with the new velocity
 # Used: https://stackoverflow.com/questions/15069998/particle-swarm-optimization-inertia-factor
 # For guidance on the inertia constant
-# Set to 0.8 for now, may investigate decreasing the inertia over time in future
-def update_velocity(current_velocity,
-                    cognitive_weight,
-                    social_component,
-                    particle_current_pos,
-                    particle_best_pos,
-                    particle_informant_best_pos,
-                    best,
-                    inertia=0.7):
+def update_particle(current_velocity,
+                    particle_current_position,
+                    particle_best_position,
+                    global_best_position,
+                    c1,
+                    c2,
+                    inertia=0.5):
+    r1, r2 = np.random.rand(), np.random.rand()
+    cognitive_component = c1 * r1 * (particle_best_position - particle_current_position)
+    social_component = c2 * r2 * (global_best_position - particle_current_position)
 
-    b = cognitive_weight
-    c = social_component
+    new_velocity = inertia * current_velocity + cognitive_component + social_component
+    updated_position = particle_current_position + new_velocity
 
-    # Update the velocity using the PSO formula
-    new_velocity = (inertia * current_velocity +
-                    b * (particle_best_pos - particle_current_pos) +
-                    c * (particle_informant_best_pos - particle_current_pos))
-
-    # We want to use Numpy.Clip to ensure that none of the values
-    # take us out of bounds (are too big)
-    # https://numpy.org/doc/stable/reference/generated/numpy.clip.html
-    new_velocity = np.clip(new_velocity, -0.7, 0.7)
-
-    return new_velocity
+    return updated_position
 
 # Mean Squared Error has been chosen
 # for the fitness function
-def calculate_fitness(y_pred, y_train, layers, particle):
-    y_pred = forward_pass_pso(y_pred, layers, particle)
-    return mse(y_train, y_pred)
+def calculate_fitness(layer_dimensions,
+                      data,
+                      labels,
+                      particle_position):
+    # Initialise the weights and baises for the neural net
+    weights, biases = setup(layer_dimensions)
 
-# Forward Pass
-# Takes in Input Data, Weights and Biases
-def forward_pass_pso(data, layers, particle):
-    output = data
-    for i in range(layers):
-        weights = particle['weights'][i]
-        bias = particle['biases'][i]
-        ws = np.dot(output, weights) + bias
-        output = relu(ws)
-    return np.dot(output, particle['weights_output']) + particle['biases'][-1][layers]
+    # Forward pass to generate predictions
+    predictions = []
+    for item in data:
+        predictions.append(predict(item.reshape(-1, 1), weights, biases, particle_position))
+    predictions = np.array(predictions).flatten()
+    return mse(labels, predictions)
 
 # Randomly assign n number of informants
 # Default is 2, can be overridden

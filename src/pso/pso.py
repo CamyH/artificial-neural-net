@@ -1,7 +1,8 @@
+# Packages
 import numpy as np
-from ann.neural_net import setup, predict
-from helper_functions.helpers import mse
 
+# Custom Hooks
+from helper_functions.pso_helpers import calculate_fitness, update_particle
 
 def particle_swarm_optimisation(layer_dimensions,
                                 num_parameters,
@@ -15,7 +16,16 @@ def particle_swarm_optimisation(layer_dimensions,
         velocity = np.random.randn(num_parameters) * 0.1
         best_position = position.copy()
         best_fitness = 9999
-        swarm.append({i: {'position': position, 'velocity': velocity, 'best_position': best_position, 'best_fitness': best_fitness}})
+        swarm.append(
+            {i: {
+                'position': position,
+                'velocity': velocity,
+                'best_position': best_position,
+                'best_fitness': best_fitness,
+                'informants': []
+                }
+            }
+        )
 
     global_best_position = None
     global_best_fitness = 9999
@@ -48,37 +58,3 @@ def particle_swarm_optimisation(layer_dimensions,
         print(f"Iteration {iteration + 1}/{max_iter}, Fitness: {global_best_fitness}")
 
     return global_best_position
-
-
-
-def calculate_fitness(layer_dimensions,
-                      data,
-                      labels,
-                      particle_position):
-    # Initialise the weights and baises for the neural net
-    weights, biases = setup(layer_dimensions)
-
-    # Forward pass to generate predictions
-    predictions = []
-    for item in data:
-        predictions.append(predict(item.reshape(-1, 1), weights, biases, particle_position))
-    predictions = np.array(predictions).flatten()
-    return mse(labels, predictions)
-
-# Function to update the velocity of a particle
-# Also updates the particles position with the new velocity
-def update_particle(current_velocity,
-                    particle_current_position,
-                    particle_best_position,
-                    global_best_position,
-                    c1,
-                    c2,
-                    inertia=0.5):
-    r1, r2 = np.random.rand(), np.random.rand()
-    cognitive_component = c1 * r1 * (particle_best_position - particle_current_position)
-    social_component = c2 * r2 * (global_best_position - particle_current_position)
-
-    new_velocity = inertia * current_velocity + cognitive_component + social_component
-    updated_position = particle_current_position + new_velocity
-
-    return updated_position
