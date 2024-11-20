@@ -3,41 +3,44 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-from src.ann.neuralnetwork import NeuralNetwork
-from src.pso.pso import particle_swarm_optimisation
-from helper_functions.helpers import mse, mae
+
+from ann.neuralnetwork import setup, predict, forward_pass
+from pso.pso import particle_swarm_optimisation
+from helper_functions.helpers import mse, mae, params_count
 
 # Load and preprocess the dataset
 df = pd.read_csv('data/concrete_data.csv')
-X = df.iloc[:, :-1].values
+x = df.iloc[:, :-1].values
 y = df.iloc[:, -1].values.reshape(-1, 1)
 
 # Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
 
 # Scale the features
 feature_scaler = MinMaxScaler()
-X_train = feature_scaler.fit_transform(X_train)
-X_test = feature_scaler.transform(X_test)
+x_train = feature_scaler.fit_transform(x_train)
+x_test = feature_scaler.transform(x_test)
 
-# Define ANN and PSO parameters
-ann_architecture = [8, 6, 6, 1]
+# Setup ANN and PSO params
+layer_dimensions = [8, 6, 6, 1]
 ann_activations = ['relu', 'relu', 'relu', 'linear']
-num_parameters = sum(w.size for w in NeuralNetwork(ann_architecture, ann_activations).weights) + \
-                 sum(b.size for b in NeuralNetwork(ann_architecture, ann_activations).biases)
+# Initialising weights and biases for the neural network
+weights, biases = setup(layer_dimensions)
+num_parameters = params_count(weights, biases)
 
 # Run PSO optimisation
-best_params = particle_swarm_optimisation(num_parameters, ann_architecture,
-          ann_activations, X_train, y_train, 50, 1.5, 1.5)
+best_params = particle_swarm_optimisation(layer_dimensions, num_parameters,
+           x_train, y_train, 50, 1.5, 1.5)
 
 # Initialize ANN with the optimised parameters
-ann = NeuralNetwork(ann_architecture, ann_activations)
-ann.update_parameters(best_params)
+#ann = NeuralNetwork(ann_architecture, ann_activations)
+#ann.update_parameters(best_params)
 
 # Generate predictions on the test set
 predictions = []
-for x in X_test:
-    pred = ann.forward_pass(x.reshape(-1, 1))
+for x in x_test:
+    #pred = forward_pass(x.reshape(-1, 1))
+    pred = predict(x.reshape(-1, 1), weights, biases, best_params)
     predictions.append(pred)
 
 predictions = np.array(predictions)
