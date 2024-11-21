@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
+import time
 
 # Custom Hooks
 from ann.neural_net import setup, predict
@@ -26,7 +27,9 @@ x_train = feature_scaler.fit_transform(x_train)
 x_test = feature_scaler.transform(x_test)
 
 # Setup ANN and PSO params
-#layer_dimensions = [8, 6, 6, 1]
+# Hard coded list used for experimentation purposes
+#layer_dimensions = [8, 4, 6, 1]
+start_time = time.time()
 layer_dimensions = [input_dimensions]
 
 # Ask the user to enter the number of layers they would like
@@ -41,18 +44,21 @@ layer_dimensions.append(output_dimensions)
 
 print(f'Selected Layer Dimensions {layer_dimensions}')
 
+# Optionally ask the user to enter a different activation function
+activation_function = str(input("Optionally enter the activation function (relu, tan, log) Press enter to skip: "))
+
 # Initialising weights and biases for the neural network
 weights, biases = setup(layer_dimensions)
 num_parameters = params_count(weights, biases)
 
 # Run PSO optimisation
 optimised_params = particle_swarm_optimisation(layer_dimensions, num_parameters,
-           x_train, y_train, 50, 1.5, 1.5)
+           x_train, y_train, 1.5, 1.5, activation_function, 50)
 
 # Generate predictions on the test set
 predictions = []
 for x in x_test:
-    pred = predict(x.reshape(-1, 1), weights, biases, optimised_params)
+    pred = predict(x.reshape(-1, 1), weights, biases, optimised_params, activation_function)
     predictions.append(pred)
 
 predictions = np.array(predictions)
@@ -60,13 +66,21 @@ predictions = np.array(predictions)
 # Calculate metrics for test data
 result_mae = mae(y_test, predictions)
 result_mse = mse(y_test, predictions)
+test_df = pd.DataFrame(y_test)
+#test_df.to_csv('y_test.csv', index=False)
+end_time = time.time()
 print(f"Test MAE: {result_mae}")
 print(f"Test MSE: {result_mse}")
+print(f'Elapsed Time: {end_time - start_time}')
 
 # Output data to csv
 results_reshaped = predictions.reshape(-1)
-results_df = pd.DataFrame(results_reshaped, columns=['predictions'])
-results_df.to_csv('output.csv')
+y_test_reshaped = y_test.reshape(-1)
+results_df = pd.DataFrame({
+    'Predictions': results_reshaped,
+    'Target Values': y_test_reshaped
+})
+results_df.to_csv('baseline_run_10.csv')
 
 # Plot the results
 '''

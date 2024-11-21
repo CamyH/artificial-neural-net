@@ -2,7 +2,7 @@
 import numpy as np
 
 # Custom Hooks
-from activation_functions.activation_functions import relu, tan, log
+from helper_functions.helpers import activation_function
 
 def setup(layer_dimensions):
     # Initialise the weights and biases using random initialsation
@@ -17,19 +17,19 @@ def setup(layer_dimensions):
     return weights, biases
 
 
-def predict(data, weights, biases, optimised_params):
+def predict(data, weights, biases, optimised_params, activ_function):
     # Update the weights/biases with the optimised weights from PSO
     weights, biases = update_weights_biases(weights, biases, optimised_params)
     # Run forward pass and return predictions
-    return forward_pass(data, weights, biases)
+    return forward_pass(data, weights, biases, activ_function)
 
 # Forward Pass
 # Takes in the set of inputs, returns the predicted outputs
-def forward_pass(data, weights, biases):
+def forward_pass(data, weights, biases, activ_function):
     output = data
     for i in range(len(weights) - 1):
         ws = np.dot(weights[i], output) + biases[i]
-        output = relu(ws)
+        output = activation_function(activ_function, ws)
 
     # Don't want to apply any activation function on the output
     return np.dot(weights[-1], output) + biases[-1]
