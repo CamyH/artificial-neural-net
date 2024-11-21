@@ -1,6 +1,9 @@
 # Packages
 import numpy as np
 
+# Custom Hooks
+from activation_functions.activation_functions import relu, tan, log
+
 # Mean Squared Error (MSE) chosen for regression
 # y = observed values
 # pred = predicted values/yhat
@@ -29,3 +32,19 @@ def params_count(weights, biases):
     for bias_vector in biases:
         count += np.prod(bias_vector.shape)
     return count
+
+# Function to return the correct activation function based on
+# what the user specifies
+# uses the new-ish match case statement
+# https://www.geeksforgeeks.org/python-match-case-statement/
+# Returns RELU by default
+def activation_function(specified_activation_function, ws):
+    match specified_activation_function:
+        case 'relu':
+            return relu(ws)
+        case 'tan':
+            return tan(ws)
+        case 'log':
+            return log(ws)
+        case _:
+            return relu(ws)

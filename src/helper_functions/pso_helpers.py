@@ -31,7 +31,7 @@ def update_particle(current_velocity,
     new_velocity = new_velocity + jump_size * (best_informant - particle_current_position)
 
     # Boundary handling
-    # If the velocity exceeds 0.1 then we want to limit it
+    # If the size (magnitude) of the velocity exceeds 0.1 then we want to limit it
     new_velocity = new_velocity * min(1, max_velocity / np.linalg.norm(new_velocity))
 
     updated_position = particle_current_position + new_velocity
