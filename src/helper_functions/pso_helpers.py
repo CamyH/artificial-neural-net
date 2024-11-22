@@ -18,17 +18,17 @@ def update_particle(current_velocity,
                     c2,
                     c3,
                     best_informant,
-                    jump_size=0.5,
+                    step_size=0.5,
                     inertia=0.5,
                     max_velocity=0.1):
     r1, r2 = np.random.rand(), np.random.rand()
     cognitive_component = c1 * r1 * (particle_best_position - particle_current_position)
     social_component = c2 * r2 * (global_best_position - particle_current_position)
-    informant_component = (c3 + jump_size) * (best_informant - particle_current_position)
+    informant_component = (c3 + step_size) * (best_informant - particle_current_position)
     new_velocity = inertia * current_velocity + cognitive_component + social_component + informant_component
 
     # Add step to velocity to help exploration
-    new_velocity = new_velocity + jump_size * (best_informant - particle_current_position)
+    new_velocity = new_velocity + step_size * (best_informant - particle_current_position)
 
     # Boundary handling
     # If the size (magnitude) of the velocity exceeds 0.1 then we want to limit it
